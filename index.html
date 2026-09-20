@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الإدارة الشامل - معمل أسلوب الأناقة</title>
+    <!-- Tailwind CSS لتصميم عصري وسريع -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- شريط العنوان -->
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-cutters text-amber-400"></i> معمل أسلوب الأناقة - النظام الشامل
+            </h1>
+            <p class="text-sm text-gray-300 mt-2 md:mt-0">إدارة إنتاج الخياطين ومعمل الزرار (2026 - 2028)</p>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="container mx-auto px-4 py-6">
+        
+        <!-- بطاقات الملخص السريع -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl shadow border-r-4 border-blue-500">
+                <p class="text-sm text-gray-500">إجمالي القطع المسجلة</p>
+                <h3 id="totalPieces" class="text-2xl font-bold text-slate-800">0</h3>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow border-r-4 border-emerald-500">
+                <p class="text-sm text-gray-500">إجمالي حساب معمل الزرار</p>
+                <h3 id="totalButtonLab" class="text-2xl font-bold text-slate-800">0</h3>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow border-r-4 border-amber-500">
+                <p class="text-sm text-gray-500">إجمالي مستحقات الخياطين</p>
+                <h3 id="totalTailors" class="text-2xl font-bold text-slate-800">0</h3>
+            </div>
+        </div>
+
+        <!-- نموذج إدخال البيانات اليومية -->
+        <div class="bg-white rounded-xl shadow p-6 mb-8">
+            <h2 class="text-lg font-bold mb-4 text-slate-700 flex items-center gap-2">
+                <i class="fas fa-plus-circle text-blue-600"></i> تسجيل إنتاج يومي جديد
+            </h2>
+            <form id="entryForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-1">التاريخ</label>
+                    <input type="date" id="entryDate" required class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">اسم الخياط</label>
+                    <select id="tailorName" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none">
+                        <option value="عبد الله">عبد الله</option>
+                        <option value="إدريس">إدريس</option>
+                        <option value="رام">رام</option>
+                        <option value="سبدول">سبدول</option>
+                        <option value="نارش">نارش</option>
+                        <option value="سجاد">سجاد</option>
+                        <option value="إرشاد">إرشاد</option>
+                        <option value="بدرول">بدرول</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1">عدد القطع</label>
+                    <input type="number" id="piecesCount" min="1" value="1" required class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded-lg transition duration-200">
+                        <i class="fas fa-save ml-1"></i> حفظ السجل
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- جدول عرض السجلات -->
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+            <div class="p-4 bg-slate-100 border-b flex justify-between items-center">
+                <h3 class="font-bold text-slate-700"><i class="fas fa-table ml-2"></i> سجلات الإنتاج اليومية</h3>
+                <button onclick="clearData()" class="text-red-600 text-sm hover:underline"><i class="fas fa-trash ml-1"></i> مسح كافة البيانات</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 border-b text-sm">
+                            <th class="p-3">التاريخ</th>
+                            <th class="p-3">اسم الخياط</th>
+                            <th class="p-3">عدد القطع</th>
+                            <th class="p-3">الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y text-sm">
+                        <!-- تُضاف البيانات ديناميكياً هنا -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- كود الجافاسكريبت للتشغيل التفاعلي -->
+    <script>
+        let records = JSON.parse(localStorage.getItem('tailor_records')) || [];
+
+        const form = document.getElementById('entryForm');
+        const tableBody = document.getElementById('dataTableBody');
+        const totalPiecesEl = document.getElementById('totalPieces');
+        const totalButtonLabEl = document.getElementById('totalButtonLab');
+        const totalTailorsEl = document.getElementById('totalTailors');
+
+        function updateUI() {
+            tableBody.innerHTML = '';
+            let totalPieces = 0;
+
+            if (records.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-gray-400">لا توجد سجلات مسجلة حتى الآن</td></tr>`;
+            }
+
+            records.forEach((rec, index) => {
+                totalPieces += Number(rec.pieces);
+                const row = document.tr = document.createElement('tr');
+                row.className = "hover:bg-gray-50";
+                row.innerHTML = `
+                    <td class="p-3">${rec.date}</td>
+                    <td class="p-3 font-semibold text-slate-700">${rec.tailor}</td>
+                    <td class="p-3">${rec.pieces}</td>
+                    <td class="p-3"><button onclick="deleteRecord(${index})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt"></i></button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            totalPiecesEl.innerText = totalPieces;
+            totalButtonLabEl.innerText = totalPieces * 5; // افتراض حساب معمل الزرار
+            totalTailorsEl.innerText = totalPieces * 15; // افتراض حساب مستحقات الخياطين
+            localStorage.setItem('tailor_records', JSON.stringify(records));
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const date = document.getElementById('entryDate').value;
+            const tailor = document.getElementById('tailorName').value;
+            const pieces = document.getElementById('piecesCount').value;
+
+            records.push({ date, tailor, pieces });
+            form.reset();
+            document.getElementById('entryDate').valueAsDate = new Date();
+            updateUI();
+        });
+
+        function deleteRecord(index) {
+            records.splice(index, 1);
+            updateUI();
+        }
+
+        function clearData() {
+            if (confirm('هل أنت متأكد من مسح كافة البيانات؟')) {
+                records = [];
+                updateUI();
+            }
+        }
+
+        // تعيين تاريخ اليوم كافتراضي عند الفتح
+        document.getElementById('entryDate').valueAsDate = new Date();
+        updateUI();
+    </script>
+</body>
+</html>
