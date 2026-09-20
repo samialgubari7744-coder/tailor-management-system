@@ -32,15 +32,18 @@ with st.sidebar.form("entry_form"):
         st.sidebar.success("تم الحفظ بنجاح!")
 
 if not st.session_state.data.empty:
-    total_pieces = st.session_state.data['عدد القطع'].sum()
+    total_pieces = int(st.session_state.data['عدد القطع'].sum())
     
     col1, col2, col3 = st.columns(3)
-    col1.metric("إجمالي القطع المسجلة", total_pieces)
-    col2.metric("حساب معمل الزرار التقديري", f"{total_pieces * 5} ر.ي")
-    col3.metric("مستحقات الخياطين الإجمالية", f"{total_pieces * 15} ر.ي")
+    with col1:
+        st.metric(label="إجمالي القطع المسجلة", value=total_pieces)
+    with col2:
+        st.metric(label="حساب معمل الزرار التقديري", value=f"{total_pieces * 5} ر.ي")
+    with col3:
+        st.metric(label="مستحقات الخياطين الإجمالية", value=f"{total_pieces * 15} ر.ي")
     
     st.divider()
-    st.subheader("📊 سجلات الإنتاج اليومية")
+    st.subheader("📊 أرشيفات الإنتاج اليومي")
     st.dataframe(st.session_state.data, use_container_width=True)
     
     if st.button("مسح كافة البيانات"):
