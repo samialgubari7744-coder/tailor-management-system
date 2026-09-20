@@ -4,43 +4,42 @@ from datetime import datetime
 
 st.set_page_config(page_title="معمل أسلوب الأناقة", page_icon="✂️", layout="wide")
 
-# تخصيص التصميم والإنفوجرافيك واتجاه الكتابة من اليمين لليسار (RTL)
+# إجبار المتصفح على الاتجاه من اليمين ليسار ودعم وضع الكمبيوتر والهواتف
 st.markdown("""
     <style>
-    /* تطبيق الاتجاه من اليمين إلى اليسار على كافة عناصر النظام */
-    html, body, [class*="css"] {
-        direction: rtl;
-        text-align: right;
+    /* فرض الاتجاه من اليمين لليسار على مستوى كل العناصر والجداول والقوائم */
+    html, body, [class*="css"], .stApp {
+        direction: rtl !important;
+        text-align: right !important;
     }
     
-    /* تخصيص القائمة الجانبية والنصوص فيها */
-    .sidebar .sidebar-content {
-        direction: rtl;
-        text-align: right;
+    iframe {
+        direction: rtl !important;
     }
 
     .infographic-card {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
         border: 1px solid #e2e8f0;
+        border-right: 5px solid #2563eb;
         padding: 20px;
         border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
         text-align: center;
         margin-bottom: 15px;
     }
     .infographic-card h3 {
-        color: #334155;
-        font-size: 16px;
+        color: #64748b;
+        font-size: 15px;
         margin-bottom: 5px;
     }
     .infographic-card h2 {
         color: #0f172a;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: bold;
     }
     .main-title {
         text-align: center;
-        color: #1e293b;
+        color: #0f172a;
         font-weight: 800;
         padding-bottom: 0px;
     }
@@ -50,16 +49,27 @@ st.markdown("""
         font-size: 15px;
         margin-bottom: 25px;
     }
-    
-    /* محاذاة الجداول لتكون متوافقة مع اليمين */
-    dataframe, table {
-        text-align: right !important;
+    /* تنسيق التبويبات المتوافقة مع RTL */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        direction: rtl !important;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #f1f5f9;
+        border-radius: 8px 8px 0px 0px;
+        padding: 10px 20px;
+        font-weight: 600;
+        color: #334155;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #2563eb !important;
+        color: white !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
 st.markdown("<h1 class='main-title'>✂️ معمل أسلوب الأناقة</h1>", unsafe_allow_html=True)
-st.markdown("<p class='sub-title'>نظام الإدارة والإنتاج الذكي بتصميم الإنفوجرافيك المتقدم</p>", unsafe_allow_html=True)
+st.markdown("<p class='sub-title'>نظام الإدارة والإنتاج الذكي - الإصدار الاحترافي</p>", unsafe_allow_html=True)
 st.divider()
 
 # تهيئة قاعدة البيانات في الـ Session State
@@ -71,18 +81,37 @@ if 'withdrawals' not in st.session_state:
 
 tailors_list = ["عبد الله", "إدريس", "رام", "سبدول", "نارش", "سجاد", "إرشاد", "بدرول"]
 
-# القائمة الجانبية للإدخال
-st.sidebar.header("📝 لوحة الإدخال والتحكم")
-menu_choice = st.sidebar.selectbox("اختر القسم", ["تسجيل إنتاج يومي", "تسجيل سحبية / سلفة"])
+# إدارة المؤشر الحالي للخياط في صفحة الإدخال السريع
+if 'current_tailor_idx' not in st.session_state:
+    st.session_state.current_tailor_idx = 0
+
+# القائمة الجانبية للإدخال والتحكم
+st.sidebar.markdown("### ⚙️ لوحة التحكم والإدخال")
+menu_choice = st.sidebar.selectbox("اختر القسم الرئيسي", ["تسجيل إنتاج يومي", "تسجيل سحبية / سلفة"])
 
 if menu_choice == "تسجيل إنتاج يومي":
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("#### 🧵 تسجيل إنتاج الخياطين")
+    
+    # أزرار التنقل السريع (السابق / التالي)
+    col_prev, col_next = st.sidebar.columns(2)
+    with col_prev:
+        if st.button("◀ السابق", use_container_width=True):
+            st.session_state.current_tailor_idx = (st.session_state.current_tailor_idx - 1) % len(tailors_list)
+    with col_next:
+        if st.button("التالي ▶", use_container_width=True):
+            st.session_state.current_tailor_idx = (st.session_state.current_tailor_idx + 1) % len(tailors_list)
+            
+    current_tailor = tailors_list[st.session_state.current_tailor_idx]
+    st.sidebar.info(f"الخياط الحالي: **{current_tailor}** (رقم {st.session_state.current_tailor_idx + 1} من {len(tailors_list)})")
+
     with st.sidebar.form("entry_form"):
         entry_date = st.date_input("📅 التاريخ", datetime.today())
-        tailor_name = st.selectbox("🧵 اسم الخياط", tailors_list)
+        tailor_name = st.selectbox("🧵 اسم الخياط", tailors_list, index=st.session_state.current_tailor_idx)
         pieces_count = st.number_input("📦 عدد القطع", min_value=1, value=1)
         piece_price = st.number_input("💰 سعر القطعة (ر.ي)", min_value=0.0, value=15.0)
         
-        submit_button = st.form_submit_button(label="حفظ الإنتاج 🚀")
+        submit_button = st.form_submit_button(label="حفظ والانتقال للتالي 🚀")
 
         if submit_button:
             total_amount = pieces_count * piece_price
@@ -94,12 +123,17 @@ if menu_choice == "تسجيل إنتاج يومي":
                 'الإجمالي': [float(total_amount)]
             })
             st.session_state.data = pd.concat([st.session_state.data, new_row], ignore_index=True)
-            st.sidebar.success("✅ تم حفظ الإنتاج بنجاح!")
+            
+            st.session_state.current_tailor_idx = (st.session_state.current_tailor_idx + 1) % len(tailors_list)
+            st.sidebar.success(f"✅ تم حفظ إنتاج {tailor_name} بنجاح!")
+            st.rerun()
 
 elif menu_choice == "تسجيل سحبية / سلفة":
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("#### 💸 تسجيل سحبية مالية")
     with st.sidebar.form("withdrawal_form"):
         w_date = st.date_input("📅 تاريخ السحبية", datetime.today())
-        w_tailor = st.selectbox("🧵 اسم الخياط", tailors_list, key="w_tailor")
+        w_tailor = st.selectbox("🧵 اسم الخياط", tailors_list)
         w_amount = st.number_input("💵 مبلغ السحبية (ر.ي)", min_value=0.0, value=100.0)
         w_type = st.text_input("🏷️ نوع السحبية", value="مصروف أسبوعي")
         
@@ -115,13 +149,12 @@ elif menu_choice == "تسجيل سحبية / سلفة":
             st.session_state.withdrawals = pd.concat([st.session_state.withdrawals, new_w], ignore_index=True)
             st.sidebar.success("✅ تم تسجيل السحبية بنجاح!")
 
-# التبويبات الرئيسية
+# التبويبات الرئيسية بتصميم أنيق
 tab1, tab2, tab3, tab4 = st.tabs(["📊 ملخص الخياطين", "🔘 حسابات معمل الزرار", "💸 السحبياّت والعهد", "📋 سجلات الإنتاج الكاملة"])
 
 with tab1:
     st.subheader("📁 ملخص الإنتاج الشهري لكل خياط")
-    
-    st.markdown("**اختر الخياط للتنقل السريع:**")
+    st.markdown("**اختر الخياط لعرض تقريره التفصيلي:**")
     selected_tailor = st.radio("الخياطون", tailors_list, horizontal=True, label_visibility="collapsed")
     
     if not st.session_state.data.empty:
@@ -147,7 +180,6 @@ with tab1:
             
             net_balance = total_m - tailor_w
             
-            # عرض المؤشرات بتصميم إنفوجرافيك جذاب
             c1, c2, c3, c4 = st.columns(4)
             with c1:
                 st.markdown(f"<div class='infographic-card'><h3>📦 إجمالي قطع الشهر</h3><h2>{int(total_p)}</h2></div>", unsafe_allow_html=True)
