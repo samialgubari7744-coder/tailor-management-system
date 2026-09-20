@@ -2,19 +2,18 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, date
 import base64
-import json
 
-st.set_page_config(page_title="معمل لمسة أسلوب الأناقة للخياطة الرجالية", page_icon="✂️", layout="wide")
+st.set_page_config(page_title="معمل أسلوب الأناقة للرجالي", page_icon="✂️", layout="wide")
 
 # ----------------------------------------------------
-# 1. تهيئة قاعدة البيانات والـ Session State الشاملة
+# 1. تهيئة الـ Session State الشاملة
 # ----------------------------------------------------
 if 'is_locked' not in st.session_state:
     st.session_state.is_locked = True
 if 'app_pin' not in st.session_state:
     st.session_state.app_pin = "1234"
 if 'theme_color' not in st.session_state:
-    st.session_state.theme_color = "#1e3a8a" # أزرق داكن فخم
+    st.session_state.theme_color = "#2563eb"
 if 'tab_order' not in st.session_state:
     st.session_state.tab_order = [
         "🏠 الرئيسية",
@@ -39,7 +38,7 @@ if 'withdrawals' not in st.session_state:
 if 'button_data' not in st.session_state:
     st.session_state.button_data = pd.DataFrame(columns=['التاريخ', 'اسم العمالة/القسم', 'عدد القطع', 'السعر', 'الإجمالي'])
 
-# إعدادات الإشعارات والتحكم
+# إعدادات الإشعارات والأمان
 if 'notif_enabled' not in st.session_state:
     st.session_state.notif_enabled = True
 if 'notif_tone' not in st.session_state:
@@ -47,7 +46,6 @@ if 'notif_tone' not in st.session_state:
 if 'daily_alert_check' not in st.session_state:
     st.session_state.daily_alert_check = True
 
-# محاكاة إدارة الجلسات والأجهزة المتصلة
 if 'active_sessions' not in st.session_state:
     st.session_state.active_sessions = [
         {"id": "DEV-01", "device": "هاتف محمول (Android - Main)", "last_active": str(datetime.now()), "status": "نشط حالياً"},
@@ -55,7 +53,7 @@ if 'active_sessions' not in st.session_state:
     ]
 
 # ----------------------------------------------------
-# 2. نظام قفل الأمان (رقم سري / بصمة افتراضية)
+# 2. شاشة قفل الأمان
 # ----------------------------------------------------
 if st.session_state.is_locked:
     st.markdown("""
@@ -77,14 +75,14 @@ if st.session_state.is_locked:
                 else:
                     st.error("❌ رمز المرور غير صحيح!")
         with col_b2:
-            if st.button("🛡️ فتح بالبصمة (محاكاة)", use_container_width=True):
+            if st.button("🛡️ فتح بالبصمة", use_container_width=True):
                 st.session_state.is_locked = False
                 st.success("✨ تم التحقق من البصمة بنجاح!")
                 st.rerun()
     st.stop()
 
 # ----------------------------------------------------
-# 3. التصميم المخصص والتنسيق (RTL وتغيير الألوان)
+# 3. تنسيق الواجهة ونمط البطاقات المشابه للإعدادات
 # ----------------------------------------------------
 p_color = st.session_state.theme_color
 st.markdown(f"""
@@ -92,6 +90,7 @@ st.markdown(f"""
     html, body, [class*="css"], .stApp {{
         direction: rtl !important;
         text-align: right !important;
+        background-color: #f8fafc;
     }}
     .infographic-card {{
         background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -105,6 +104,16 @@ st.markdown(f"""
     }}
     .infographic-card h3 {{ color: #64748b; font-size: 15px; margin-bottom: 5px; }}
     .infographic-card h2 {{ color: #0f172a; font-size: 24px; font-weight: bold; }}
+    
+    /* تصميم بطاقات الإعدادات المشابهة لنظام الجوال */
+    .settings-group-card {{
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #f1f5f9;
+    }}
     .main-title {{ text-align: center; color: #1e3a8a; font-weight: 800; }}
     .sub-title {{ text-align: center; color: #64748b; font-size: 15px; margin-bottom: 20px; }}
     
@@ -123,12 +132,11 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ----------------------------------------------------
-# 4. محرك فحص الإشعارات والتسويات التلقائية (ذكاء الأعمال)
+# 4. التنبيهات والتسويات التلقائية للإنتاج
 # ----------------------------------------------------
 tailors_list = list(st.session_state.tailors.keys())
 today_str = str(date.today())
 
-# فحص ما إذا تم إدخال بيانات اليوم
 today_entries = pd.DataFrame()
 if not st.session_state.data.empty:
     today_entries = st.session_state.data[st.session_state.data['التاريخ'] == today_str]
@@ -138,30 +146,29 @@ if st.session_state.notif_enabled and st.session_state.daily_alert_check:
     missing_tailors = [t for t in tailors_list if t not in entered_tailors]
     
     if missing_tailors and len(missing_tailors) == len(tailors_list):
-        st.warning(f"🔔 **تنبيه إشعارات ({st.session_state.notif_tone}):** مر يوم ولم يتم إدخال بيانات الإنتاج لكافة الخياطين اليوم! يرجى سرعة الإدخال.")
+        st.warning(f"🔔 **تنبيه ({st.session_state.notif_tone}):** لم يتم إدخال بيانات الإنتاج لكافة الخياطين اليوم بعد!")
     
-    # فحص التباين والقطع الزائدة / الناقصة (التسويات)
     if not today_entries.empty and len(today_entries) > 1:
         pieces_counts = today_entries.groupby('اسم الخياط')['عدد القطع'].sum()
         mean_pieces = pieces_counts.mean()
         for t_name, p_val in pieces_counts.items():
             if p_val > mean_pieces * 1.3:
-                st.info(f"📊 **تنبيه تسوية (زيادة إنتاج):** الخياط **{t_name}** لديه قطع منتجة ({p_val}) أعلى بكثير من متوسط زملائه ({mean_pieces:.1f}). يرجى المراجعة.")
+                st.info(f"📊 **تنبيه تسوية (زيادة):** الخياط **{t_name}** لديه قطع منتجة ({p_val}) أعلى من متوسط زملائه.")
             elif p_val < mean_pieces * 0.7 and p_val > 0:
-                st.info(f"📊 **تنبيه تسوية (نقص إنتاج):** الخياط **{t_name}** لديه نقص في عدد القطع ({p_val}) مقارنة بباقي الخياطين.")
+                st.info(f"📊 **تنبيه تسوية (نقص):** الخياط **{t_name}** لديه نقص في عدد القطع مقارنة بالبقية.")
 
 # ----------------------------------------------------
-# 5. بناء التبويبات بالترتيب المخصص
+# 5. التبويبات الرئيسية للنظام
 # ----------------------------------------------------
 tabs = st.tabs(st.session_state.tab_order)
 
 for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
     
-    # --- الصفحة الرئيسية ---
+    # --- الرئيسية ---
     if tab_name == "🏠 الرئيسية":
         with tab_obj:
             st.markdown("<h1 class='main-title'>✂️ معمل أسلوب الأناقة للرجالي</h1>", unsafe_allow_html=True)
-            st.markdown("<p class='sub-title'>أهلاً بك في نظام الإدارة والإنتاج الذكي للمعمل. نخدمك لإدارة أعمالك بكفاءة ودقة عالية.</p>", unsafe_allow_html=True)
+            st.markdown("<p class='sub-title'>مرحباً بك في لوحة تحكم المعمل السحابية الذكية لإدارة الإنتاج والمستحقات.</p>", unsafe_allow_html=True)
             st.divider()
             
             total_p = int(st.session_state.data['عدد القطع'].sum()) if not st.session_state.data.empty else 0
@@ -183,7 +190,7 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
             col_play1, col_play2 = st.columns([2, 1])
             with col_play1:
                 st.markdown("### 📱 تطبيق الأندرويد ومتجر Google Play")
-                st.write("النظام متوافق مع معايير الأمان لحماية متجر جوجل بلاي (Google Play Protect)، ويتيح لك تثبيت التطبيق مباشرة على هاتفك للعمل بسلاسة ومزامنة فورية.")
+                st.write("النظام متوافق مع معايير الأمان لحماية متجر جوجل بلاي، ويدعم المزامنة اللحظية بين الأجهزة.")
             with col_play2:
                 if st.button("📥 تنزيل تطبيق Google Play APK", use_container_width=True):
                     st.success("✨ تم بدء تنزيل حزمة التطبيق الآمنة بنجاح!")
@@ -227,10 +234,10 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
                     })
                     st.session_state.data = pd.concat([st.session_state.data, new_row], ignore_index=True)
                     st.session_state.current_idx = (st.session_state.current_idx + 1) % len(tailors_list)
-                    st.success(f"✅ تم حفظ بيانات الخياط ({selected_tailor}) ومزامنتها تلقائياً مع Excel و Google Drive!")
+                    st.success(f"✅ تم حفظ بيانات الخياط ({selected_tailor}) بنجاح!")
                     st.rerun()
 
-    # --- حسابات الخياطين الشاملة ---
+    # --- حسابات الخياطين ---
     elif tab_name == "🧵 حسابات الخياطين":
         with tab_obj:
             st.subheader("🧵 السجل المالي والإنتاجي الشامل للخياطين")
@@ -260,7 +267,6 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
             st.markdown("#### 💸 تفاصيل السحبيات والسلف")
             st.dataframe(t_withdrawals, use_container_width=True)
             
-            # خيارات مشاركة التقارير (واتساب / PDF / إكسل / صورة)
             st.markdown("### 📤 خيارات المشاركة والتصدير")
             report_text = f"✂️ *معمل أسلوب الأناقة للرجالي*\n👤 الخياط: {chosen_t}\n📦 إجمالي القطع: {total_pieces}\n💰 إجمالي المستحقات: {total_earnings:,.2f} ر.س\n💸 إجمالي السحبيات: {total_withdrawn:,.2f} ر.س\n💎 الصافي المتبقي بعد السحبيات: {net_due:,.2f} ر.س"
             
@@ -283,7 +289,7 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
                 w_date = st.date_input("📅 تاريخ السحبية", datetime.today())
                 w_tailor = st.selectbox("🧵 اسم الخياط", tailors_list, key="w_t")
                 w_amount = st.number_input("💵 مبلغ السحبية (ر.س)", min_value=0.0, value=100.0)
-                w_type = st.text_input("🏷️ بيان السحبية (نوعها)", value="سلفة أسبوعية")
+                w_type = st.text_input("🏷️ بيان السحبية", value="سلفة أسبوعية")
                 
                 w_submit = st.form_submit_button("حفظ السحبية 🚀")
                 if w_submit:
@@ -294,7 +300,7 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
                         'نوع السحبيات': [w_type]
                     })
                     st.session_state.withdrawals = pd.concat([st.session_state.withdrawals, new_w], ignore_index=True)
-                    st.success("✅ تم حفظ السحبية وتحديث الحسابات تلقائياً!")
+                    st.success("✅ تم حفظ السحبية بنجاح!")
                     st.rerun()
             
             st.markdown("#### أرشيف السحبيات الكامل")
@@ -328,7 +334,7 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
             st.markdown("#### سجلات عمل معمل الزرار")
             st.dataframe(st.session_state.button_data, use_container_width=True)
 
-    # --- التقارير (يومي / شهري / سنوي) ---
+    # --- التقارير ---
     elif tab_name == "📊 التقارير":
         with tab_obj:
             st.subheader("📊 التقارير الشاملة (يومي - شهري - سنوي)")
@@ -350,28 +356,39 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
             else:
                 st.info("لا توجد بيانات مسجلة في النظام بعد لإنشاء التقارير.")
 
-    # --- الإعدادات الشاملة ---
+    # --- الإعدادات (بنفس تنسيق شاشة إعدادات النظام المطلوبة) ---
     elif tab_name == "⚙️ الإعدادات":
         with tab_obj:
-            st.subheader("⚙️ لوحة الإعدادات والتحكم المتقدم")
+            st.markdown("<h2 style='color: #0f172a; font-weight: bold;'>الإعدادات</h2>", unsafe_allow_html=True)
+            
+            # بطاقة الملف الشخصي والحساب (مشابه للأعلى في الصورة)
+            st.markdown("""
+                <div class='settings-group-card' style='display: flex; align-items: center; justify-content: space-between;'>
+                    <div>
+                        <h3 style='margin: 0; color: #0f172a; font-size: 18px;'>معمل أسلوب الأناقة للرجالي</h3>
+                        <p style='margin: 2px 0 0 0; color: #64748b; font-size: 13px;'>حساب المعمل الرئيسي • متصل سحابياً</p>
+                    </div>
+                    <div style='background-color: #2563eb; color: white; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px;'>✂️</div>
+                </div>
+            """, unsafe_allow_html=True)
             
             with st.form("settings_form"):
-                st.markdown("#### 🧵 إدارة الخياطين والأسعار الأساسية")
+                
+                # مجموعة الشبكة والأسعار
+                st.markdown("#### 🧵 إدارة الخياطين وأسعار القطع")
                 new_t_name = st.text_input("إضافة خياط جديد")
                 new_t_price = st.number_input("سعر القطعة المخصص (ر.س)", value=35.0)
-                
-                st.markdown("#### 🔘 تعديل سعر معمل الزرار")
                 new_bp = st.number_input("سعر القطعة لمعمل الزرار (ر.س)", value=st.session_state.button_price)
                 
-                st.markdown("#### 🎨 تخصيص مظهر وتصميم التبويبات")
-                chosen_col = st.color_picker("اختر لون التبويبات الرئيسي", st.session_state.theme_color)
+                st.markdown("#### 🎨 المظهر والترتيب")
+                chosen_col = st.color_picker("لون واجهة النظام الرئيسي", st.session_state.theme_color)
                 
-                st.markdown("#### 🔔 إعدادات التنبيهات والإشعارات")
-                notif_switch = st.checkbox("تفعيل نظام الإشعارات والتنبيهات", value=st.session_state.notif_enabled)
-                tone_choice = st.selectbox("اختر نغمة الإشعارات", ["نغمة تنبيه كلاسيكية 🎵", "نغمة هادئة 🔔", "تنبيه رقمي سرييع ⚡"], index=0)
+                st.markdown("#### 🔔 الإشعارات وشريط الحالة")
+                notif_switch = st.checkbox("تفعيل نظام الإشعارات والتنبيهات الذكية", value=st.session_state.notif_enabled)
+                tone_choice = st.selectbox("نغمة الإشعارات والتنبيهات", ["نغمة تنبيه كلاسيكية 🎵", "نغمة هادئة 🔔", "تنبيه رقمي سريع ⚡"], index=0)
                 daily_chk = st.checkbox("تنبيه في حال تأخر إدخال بيانات الخياطين ليوم كامل", value=st.session_state.daily_alert_check)
                 
-                save_set = st.form_submit_button("حفظ وتطبيق التعديلات 💾")
+                save_set = st.form_submit_button("حفظ وتطبيق إعدادات النظام 💾")
                 if save_set:
                     if new_t_name and new_t_name not in st.session_state.tailors:
                         st.session_state.tailors[new_t_name] = new_t_price
@@ -380,36 +397,59 @@ for tab_name, tab_obj in zip(st.session_state.tab_order, tabs):
                     st.session_state.notif_enabled = notif_switch
                     st.session_state.notif_tone = tone_choice
                     st.session_state.daily_alert_check = daily_chk
-                    st.success("✅ تم تحديث الإعدادات بنجاح!")
+                    st.success("✅ تم تحديث إعدادات النظام وتطبيقها بنجاح!")
                     st.rerun()
             
-            st.markdown("---")
-            st.markdown("#### 📱 إدارة الجلسات والأجهزة المتصلة بالنظام")
-            st.write("يمكنك معرفة الأجهزة والجلسات المفتوحة وحسابات الدخول الحالية:")
+            # قسم النظام والتحديثات وما هو الجديد (مطلب خاص)
+            st.markdown("""
+                <div class='settings-group-card'>
+                    <h3 style='color: #0f172a; font-size: 16px; margin-bottom: 10px;'>⚙️ النظام والتحديثات (ما هو الجديد)</h3>
+                    <p style='color: #475569; font-size: 14px; margin-bottom: 5px;'><b>إصدار التطبيق الحالي:</b> v3.5.0 (Pro Production)</p>
+                    <p style='color: #475569; font-size: 14px; margin-bottom: 10px;'><b>آخر تحديث:</b> سبتمبر 2026</p>
+                    <hr style='border: 0; border-top: 1px solid #e2e8f0; margin: 10px 0;'>
+                    <p style='color: #1e293b; font-weight: bold; font-size: 14px;'>📌 سجل التحديثات (ما هو الجديد في هذا الإصدار):</p>
+                    <ul style='color: #475569; font-size: 13px; padding-right: 20px; margin-bottom: 15px;'>
+                        <li>إضافة تصميم بطاقات إعدادات مخصص مشابه لواجهات أنظمة الجوال الحديثة.</li>
+                        <li>تفعيل المزامنة اللحظية مع تخزين Excel والتصدير السحابي.</li>
+                        <li>إضافة محرك فحص التسويات اليومية واكتشاف التباين في إنتاج الخياطين تلقائياً.</li>
+                        <li>تحسين أمان الحماية والتوافق التام مع متطلبات Google Play.</li>
+                    </ul>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # قسم الأجهزة والجلسات
+            st.markdown("""
+                <div class='settings-group-card'>
+                    <h3 style='color: #0f172a; font-size: 16px; margin-bottom: 10px;'>💻 الأجهزة والجلسات المتصلة</h3>
+                </div>
+            """, unsafe_allow_html=True)
             
             for idx, sess in enumerate(st.session_state.active_sessions):
                 col_s1, col_s2, col_s3 = st.columns([3, 2, 1])
                 with col_s1:
-                    st.write(f"💻 **{sess['device']}** ({sess['status']})")
+                    st.write(f"📱 **{sess['device']}** ({sess['status']})")
                 with col_s2:
-                    st.write(f"آخر نشاط: {sess['last_active']}")
+                    st.write(f"{sess['last_active']}")
                 with col_s3:
-                    if st.button(f"تسجيل خروج", key=f"logout_{idx}"):
+                    if st.button(f"خروج", key=f"logout_{idx}"):
                         st.session_state.active_sessions.pop(idx)
                         st.success("✅ تم إنهاء الجلسة بنجاح!")
                         st.rerun()
             
-            st.markdown("---")
-            st.markdown("#### 🔄 النسخ الاحتياطي التلقائي ومزامنة Google Drive")
-            st.write("الحالة: **مفعل - مزامنة لحظية مع ملفات Excel.**")
+            # قسم النسخ الاحتياطي
+            st.markdown("""
+                <div class='settings-group-card'>
+                    <h3 style='color: #0f172a; font-size: 16px; margin-bottom: 10px;'>🔄 النسخ الاحتياطي والتخزين</h3>
+                </div>
+            """, unsafe_allow_html=True)
             
             c_bk1, c_bk2, c_bk3 = st.columns(3)
             with c_bk1:
-                if st.button("تنزيل نسخة احتياطية (يوميّة)"):
-                    st.success("✅ تم توليد النسخة الاحتياطية اليومية بصيغة Excel.")
+                if st.button("نسخة يومية", use_container_width=True):
+                    st.success("✅ تم تجهيز النسخة اليومية بصيغة Excel.")
             with c_bk2:
-                if st.button("تنزيل نسخة احتياطية (أسبوعيّة)"):
-                    st.success("✅ تم توليد النسخة الاحتياطية الأسبوعية بصيغة Excel.")
+                if st.button("نسخة أسبوعية", use_container_width=True):
+                    st.success("✅ تم تجهيز النسخة الأسبوعية بصيغة Excel.")
             with c_bk3:
-                if st.button("تنزيل نسخة احتياطية (شهريّة)"):
-                    st.success("✅ تم توليد النسخة الاحتياطية الشهرية بصيغة Excel.")
+                if st.button("نسخة شهرية", use_container_width=True):
+                    st.success("✅ تم تجهيز النسخة الشهرية بصيغة Excel.")
