@@ -3,107 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>النظام الشامل - معمل أسلوب الأناقة</title>
-    <!-- Tailwind CSS -->
+    <title>معمل أسلوب الأناقة - النظام الشامل</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome للأيقونات -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-    </style>
+    <style> body { font-family: 'Cairo', sans-serif; } </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-50 text-gray-800">
 
-    <!-- شريط التنقل العلوي -->
-    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center">
-            <h1 class="text-lg font-bold flex items-center gap-2">
-                <i class="fas fa-cut text-amber-400"></i> معمل أسلوب الأناقة
-            </h1>
-            <span class="text-xs text-gray-400 mt-1 sm:mt-0">نظام الإدارة المالي والإنتاجي (2026 - 2028)</span>
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="container mx-auto px-4 py-4 text-center">
+            <h1 class="text-xl font-bold"><i class="fas fa-cut text-amber-400"></i> معمل أسلوب الأناقة</h1>
+            <p class="text-sm text-gray-300 mt-1">النظام الشامل لإدارة الإنتاج والحسابات</p>
         </div>
-        <!-- أزرار التبويبات -->
-        <nav class="bg-slate-800 border-t border-slate-700 px-4 flex overflow-x-auto gap-2 py-2">
-            <button onclick="switchTab('home')" id="btn-home" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg bg-amber-500 text-slate-900 transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-home"></i> الرئيسية والملخص
-            </button>
-            <button onclick="switchTab('daily')" id="btn-daily" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg text-gray-300 hover:bg-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-calendar-alt"></i> الإنتاج اليومي
-            </button>
-            <button onclick="switchTab('tailors')" id="btn-tailors" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg text-gray-300 hover:bg-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-users"></i> حسابات الخياطين
-            </button>
-            <button onclick="switchTab('buttons')" id="btn-buttons" class="tab-btn px-4 py-2 text-sm font-semibold rounded-lg text-gray-300 hover:bg-slate-700 transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-circle-dot"></i> معمل الزرار
-            </button>
-        </nav>
     </header>
 
-    <!-- المحتوى الرئيسي -->
-    <main class="container mx-auto px-4 py-6 max-w-6xl">
-        
-        <!-- تبويب الرئيسية والملخص -->
-        <section id="home" class="tab-content active space-y-6">
-            <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-xl">
-                <h2 class="text-xl font-bold mb-2">مرحباً بك في نظام إدارة معمل أسلوب الأناقة</h2>
-                <p class="text-sm text-gray-300">إدارة دقيقة لقطع المعمل، مستحقات الخياطين (عبد الله، إدريس، رام، سبدول، نارش، سجاد، إرشاد، بدرول)، وحسابات معمل الزرار.</p>
+    <main class="container mx-auto px-4 py-6 max-w-2xl">
+        <!-- إحصائيات سريعة -->
+        <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+            <div class="bg-white p-3 rounded-xl shadow">
+                <span class="text-xs text-gray-500 block">إجمالي القطع</span>
+                <span id="totalPieces" class="text-lg font-bold text-slate-800">0</span>
             </div>
+            <div class="bg-white p-3 rounded-xl shadow">
+                <span class="text-xs text-gray-500 block">معمل الزرار</span>
+                <span id="totalButtonLab" class="text-lg font-bold text-slate-800">0</span>
+            </div>
+            <div class="bg-white p-3 rounded-xl shadow">
+                <span class="text-xs text-gray-500 block">مستحقات الخياطين</span>
+                <span id="totalTailors" class="text-lg font-bold text-slate-800">0</span>
+            </div>
+        </div>
 
-            <!-- بطاقات الإحصائيات -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-xl shadow border-r-4 border-blue-600">
-                    <p class="text-sm text-gray-500">إجمالي قطع المعمل كاملة</p>
-                    <h3 id="homeTotalPieces" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+        <!-- نموذج الإدخال -->
+        <div class="bg-white rounded-xl shadow p-5 mb-6">
+            <h2 class="font-bold text-slate-700 mb-3"><i class="fas fa-plus-circle text-blue-600 ml-1"></i> تسجيل إنتاج يومي</h2>
+            <form id="entryForm" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">التاريخ</label>
+                    <input type="date" id="entryDate" required class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow border-r-4 border-amber-500">
-                    <p class="text-sm text-gray-500">إجمالي مستحقات الخياطين</p>
-                    <h3 id="homeTotalTailors" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">اختار العامل:</label>
+                    <select id="tailorName" class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="عبد الله">عبد الله</option>
+                        <option value="إدريس">إدريس</option>
+                        <option value="رام">رام</option>
+                        <option value="سبدول">سبدول</option>
+                        <option value="نارش">نارش</option>
+                        <option value="سجاد">سجاد</option>
+                        <option value="إرشاد">إرشاد</option>
+                        <option value="بدرول">بدرول</option>
+                    </select>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow border-r-4 border-emerald-600">
-                    <p class="text-sm text-gray-500">صافي حساب معمل الزرار</p>
-                    <h3 id="homeTotalButtons" class="text-3xl font-bold text-slate-800 mt-1">0</h3>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">عدد القطع</label>
+                    <input type="number" id="piecesCount" min="1" value="1" required class="w-full border rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-400">
                 </div>
-            </div>
-        </section>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg text-sm hover:bg-blue-700 transition">حفظ السجل</button>
+            </form>
+        </div>
 
-        <!-- تبويب الإنتاج اليومي -->
-        <section id="daily" class="tab-content space-y-6">
-            <div class="bg-white rounded-xl shadow p-5">
-                <h2 class="text-lg font-bold mb-4 text-slate-700 flex items-center gap-2">
-                    <i class="fas fa-plus-circle text-blue-600"></i> تسجيل إنتاج يومي جديد
-                </h2>
-                <form id="entryForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">التاريخ</label>
-                        <input type="date" id="entryDate" required class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">اسم الخياط</label>
-                        <select id="tailorName" class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none">
-                            <option value="عبد الله">عبد الله</option>
-                            <option value="إدريس">إدريس</option>
-                            <option value="رام">رام</option>
-                            <option value="سبدول">سبدول</option>
-                            <option value="نارش">نارش</option>
-                            <option value="سجاد">سجاد</option>
-                            <option value="إرشاد">إرشاد</option>
-                            <option value="بدرول">بدرول</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-1">عدد القطع</label>
-                        <input type="number" id="piecesCount" min="1" value="1" required class="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-2.5 rounded-lg transition duration-200">
-                            <i class="fas fa-save ml-1"></i> حفظ السجل
-                        </button>
-                    </div>
-                </form>
+        <!-- جدول السجلات -->
+        <div class="bg-white rounded-xl shadow overflow-hidden">
+            <div class="p-3 bg-slate-100 border-b flex justify-between items-center text-sm font-bold text-slate-700">
+                <span>سجلات الإنتاج</span>
+                <button onclick="clearData()" class="text-red-500 text-xs hover:underline">مسح الكل</button>
             </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 border-b">
+                            <th class="p-2">التاريخ</th>
+                            <th class="p-2">العامل</th>
+                            <th class="p-2">القطع</th>
+                            <th class="p-2">حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let records = JSON.parse(localStorage.getItem('tailor_records')) || [];
+        const form = document.getElementById('entryForm');
+        const tableBody = document.getElementById('dataTableBody');
+        const totalPiecesEl = document.getElementById('totalPieces');
+        const totalButtonLabEl = document.getElementById('totalButtonLab');
+        const totalTailorsEl = document.getElementById('totalTailors');
+
+        function updateUI() {
+            tableBody.innerHTML = '';
+            let totalPieces = 0;
+            if (records.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-gray-400">لا توجد سجلات حالياً</td></tr>`;
+            }
+            records.forEach((rec, index) => {
+                totalPieces += Number(rec.pieces);
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50";
+                row.innerHTML = `
+                    <td class="p-2">${rec.date}</td>
+                    <td class="p-2 font-semibold">${rec.tailor}</td>
+                    <td class="p-2">${rec.pieces}</td>
+                    <td class="p-2"><button onclick="deleteRecord(${index})" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+            totalPiecesEl.innerText = totalPieces;
+            totalButtonLabEl.innerText = totalPieces * 5;
+            totalTailorsEl.innerText = totalPieces * 15;
+            localStorage.setItem('tailor_records', JSON.stringify(records));
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const date = document.getElementById('entryDate').value;
+            const tailor = document.getElementById('tailorName').value;
+            const pieces = document.getElementById('piecesCount').value;
+            records.push({ date, tailor, pieces });
+            form.reset();
+            document.getElementById('entryDate').valueAsDate = new Date();
+            updateUI();
+        });
+
+        function deleteRecord(index) {
+            records.splice(index, 1);
+            updateUI();
+        }
+
+        function clearData() {
+            if (confirm('هل أنت متأكد من مسح كافة البيانات؟')) {
+                records = [];
+                updateUI();
+            }
+        }
+
+        document.getElementById('entryDate').valueAsDate = new Date();
+        updateUI();
+    </script>
+</body>
+</html>
 
             <!-- جدول عرض السجلات -->
             <div class="bg-white rounded-xl shadow overflow-hidden">
